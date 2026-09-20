@@ -1,5 +1,5 @@
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
 
 function cosineSimilarity(vecA, vecB) {
   let dotProduct = 0;
@@ -90,7 +90,7 @@ Question: ${question}`;
 }
 
 // --- This is the actual API handler Vercel calls when a request comes in ---
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Only POST requests are allowed." });
   }
