@@ -29,6 +29,12 @@ async function retrieveTopChunks(question, allChunks, topN = 3, maxPerPost = 2) 
   });
 
   const data = await response.json();
+
+  if (!data.data) {
+    console.error("Voyage API error in retrieval:", JSON.stringify(data));
+    throw new Error("Failed to embed the question — check Voyage API key and rate limits.");
+  }
+
   const questionEmbedding = data.data[0].embedding;
 
   const scored = allChunks.map(chunk => ({
