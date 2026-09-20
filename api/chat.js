@@ -101,7 +101,7 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const indexPath = path.join(process.cwd(), "index.json");
+    const indexPath = path.join(process.cwd(), "data", "blog-embeddings.json");
     const allChunks = JSON.parse(fs.readFileSync(indexPath, "utf-8"));
 
     const topChunks = await retrieveTopChunks(question, allChunks);
