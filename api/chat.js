@@ -23,7 +23,7 @@ async function retrieveTopChunks(question, allChunks, topN = 3, maxPerPost = 2) 
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${process.env.VOYAGE_API_KEY}`
+      "Authorization": `Bearer ${process.env.VOYAGE_API_KEY?.trim()}`
     },
     body: JSON.stringify({ input: [question], model: "voyage-4-lite" })
   });

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ask My Blog</title>
+<style>
+  :root {
+    --accent: oklch(21.9% 0.0397 13.1);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #f7f5f4;
+    margin: 0;
+    padding: 40px 20px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    padding: 32px;
+    max-width: 480px;
+    width: 100%;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .header img {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--accent);
+  }
+
+  .header h1 {
+    font-size: 16px;
+    margin: 0;
+    color: #222;
+  }
+
+  .header p {
+    font-size: 13px;
+    color: #777;
+    margin: 2px 0 0 0;
+  }
+
+  form {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  input[type="text"] {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 14px;
+  }
+
+  input[type="text"]:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  button {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  button:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  .answer {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #333;
+    white-space: pre-wrap;
+  }
+
+  .sources {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .source-pill {
+    font-size: 12px;
+    color: var(--accent);
+    background: color-mix(in oklch, var(--accent) 10%, white);
+    padding: 4px 10px;
+    border-radius: 999px;
+    text-decoration: none;
+  }
+
+  .char-count {
+    font-size: 11px;
+    color: #999;
+    text-align: right;
+    margin-top: -14px;
+    margin-bottom: 14px;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="header">
+    <img src="jackie.jpg" alt="Jackie Greenfield">
+    <div>
+      <h1>Jackie Greenfield</h1>
+      <p>Ask a question, get an answer from my blog</p>
+    </div>
+  </div>
+
+  <form id="chat-form">
+    <input type="text" id="question-input" maxlength="100" placeholder="Ask something..." required>
+    <button type="submit" id="submit-btn">Ask</button>
+  </form>
+  <div class="char-count"><span id="char-count">0</span>/100</div>
+
+  <div id="result"></div>
+</div>
+
+<script>
+  const form = document.getElementById("chat-form");
+  const input = document.getElementById("question-input");
+  const charCount = document.getElementById("char-count");
+  const submitBtn = document.getElementById("submit-btn");
+  const result = document.getElementById("result");
+
+  input.addEventListener("input", () => {
+    charCount.textContent = input.value.length;
+  });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const question = input.value.trim();
+    if (!question) return;
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Thinking...";
+    result.innerHTML = "";
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question })
+      });
+
+      const data = await response.json();
+
+      const answerEl = document.createElement("div");
+      answerEl.className = "answer";
+      answerEl.textContent = data.answer;
+      result.appendChild(answerEl);
+
+      if (data.sources && data.sources.length > 0) {
+        const sourcesEl = document.createElement("div");
+        sourcesEl.className = "sources";
+        data.sources.forEach(source => {
+          const a = document.createElement("a");
+          a.href = source.url;
+          a.target = "_blank";
+          a.className = "source-pill";
+          a.textContent = source.title;
+          sourcesEl.appendChild(a);
+        });
+        result.appendChild(sourcesEl);
+      }
+    } catch (err) {
+      result.innerHTML = `<div class="answer">Something went wrong. Please try again.</div>`;
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Ask";
+    }
+  });
+</script>
+
+</body>
+</html>
